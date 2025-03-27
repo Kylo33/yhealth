@@ -10,61 +10,83 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { CircularProgress } from "react-native-circular-progress";
 
 export default function Index() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Unit Card */}
+        {/* Active Unit Card */}
         <View style={styles.unitCard}>
-          <Text style={styles.unitTitle}>Unit 1</Text>
+          <Text style={styles.unitTitle}>Unit 1: Emergency Response</Text>
           <Text style={styles.unitSubtitle}>
-            Use basic phrases, greet people
+            Learn life-saving first aid techniques
           </Text>
           {/* Learning Path Items */}
-          {[
-            {
-              icon: "book",
-              title: "Basics 1",
-              progress: 0,
-              description: "Learn core language basics",
-            },
-            {
-              icon: "github",
-              title: "Animals",
-              progress: 0,
-              description: "Animal names and types",
-            },
-            {
-              icon: "coffee",
-              title: "Food",
-              progress: 0,
-              description: "Common food vocabulary",
-            },
-            {
-              icon: "users",
-              title: "Family",
-              progress: 0,
-              description: "Family member terms",
-            },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={styles.pathItem}>
-              <Feather name={item.icon as any} size={24} color="#4CAF50" />
-              <View style={styles.pathTextContainer}>
-                <Text style={styles.pathTitle}>{item.title}</Text>
-                <Text style={styles.pathSubtitle}>{item.description}</Text>
-              </View>
-              <CircularProgress
-                size={40}
-                width={3}
-                fill={item.progress}
-                tintColor="#4CAF50"
-                backgroundColor="#e0e0e0"
-              />
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity style={styles.pathItem}>
+            <Feather name="heart" size={24} color="#4CAF50" />
+            <View style={styles.pathTextContainer}>
+              <Text style={styles.pathTitle}>CPR Basics</Text>
+              <Text style={styles.pathSubtitle}>Cardiac arrest response</Text>
+            </View>
+            <CircularProgress
+              size={40}
+              width={3}
+              fill={0}
+              tintColor="#4CAF50"
+              backgroundColor="#e0e0e0"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.pathItem}>
+            <Feather name="wind" size={24} color="#4CAF50" />
+            <View style={styles.pathTextContainer}>
+              <Text style={styles.pathTitle}>Breathing Emergency</Text>
+              <Text style={styles.pathSubtitle}>Choking and airways</Text>
+            </View>
+            <CircularProgress
+              size={40}
+              width={3}
+              fill={0}
+              tintColor="#4CAF50"
+              backgroundColor="#e0e0e0"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.pathItem}>
+            <Feather name="plus" size={24} color="#4CAF50" />
+            <View style={styles.pathTextContainer}>
+              <Text style={styles.pathTitle}>Wound Care</Text>
+              <Text style={styles.pathSubtitle}>Basic wound treatment</Text>
+            </View>
+            <CircularProgress
+              size={40}
+              width={3}
+              fill={0}
+              tintColor="#4CAF50"
+              backgroundColor="#e0e0e0"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.pathItem}
+            onPressOut={() => router.push("/game")}
+          >
+            <Feather name="mouse-pointer" size={24} color="#4CAF50" />
+            <View style={styles.pathTextContainer}>
+              <Text style={styles.pathTitle}>CPR Accuracy Game</Text>
+              <Text style={styles.pathSubtitle}>Hands-on practice</Text>
+            </View>
+            <CircularProgress
+              size={40}
+              width={3}
+              fill={0}
+              tintColor="#4CAF50"
+              backgroundColor="#e0e0e0"
+            />
+          </TouchableOpacity>
+
           {/* Start Button */}
           <TouchableOpacity
             style={styles.startButton}
@@ -72,6 +94,123 @@ export default function Index() {
           >
             <Text style={styles.startButtonText}>START</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Rest of the code remains the same */}
+        {/* Second Disabled Unit Card */}
+        <View style={[styles.unitCard, styles.disabledUnitCard]}>
+          <View style={styles.lockIconContainer}>
+            <MaterialIcons name="lock" size={24} color="#9E9E9E" />
+          </View>
+          <Text style={[styles.unitTitle, styles.disabledText]}>
+            Unit 2: Medical Management
+          </Text>
+          <Text style={[styles.unitSubtitle, styles.disabledText]}>
+            Advanced medical care techniques
+          </Text>
+          {/* Disabled Learning Path Items */}
+          {[
+            {
+              icon: "thermometer",
+              title: "Vital Signs",
+              description: "Monitoring patient health",
+            },
+            {
+              icon: "activity",
+              title: "Patient Assessment",
+              description: "Comprehensive evaluation",
+            },
+            {
+              icon: "droplet",
+              title: "Medication",
+              description: "Administration basics",
+            },
+            {
+              icon: "clipboard",
+              title: "Medical Records",
+              description: "Documentation skills",
+            },
+          ].map((item, index) => (
+            <View
+              key={index}
+              style={[styles.pathItem, styles.disabledPathItem]}
+            >
+              <Feather name={item.icon as any} size={24} color="#9E9E9E" />
+              <View style={styles.pathTextContainer}>
+                <Text style={[styles.pathTitle, styles.disabledText]}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.pathSubtitle, styles.disabledSubtitle]}>
+                  {item.description}
+                </Text>
+              </View>
+              <MaterialIcons name="lock" size={24} color="#9E9E9E" />
+            </View>
+          ))}
+          {/* Disabled Start Button */}
+          <View style={[styles.startButton, styles.disabledStartButton]}>
+            <Text style={[styles.startButtonText, styles.disabledText]}>
+              LOCKED
+            </Text>
+          </View>
+        </View>
+
+        {/* Third Disabled Unit Card with Unique Content */}
+        <View style={[styles.unitCard, styles.disabledUnitCard]}>
+          <View style={styles.lockIconContainer}>
+            <MaterialIcons name="lock" size={24} color="#9E9E9E" />
+          </View>
+          <Text style={[styles.unitTitle, styles.disabledText]}>
+            Unit 3: Emergency Equipment
+          </Text>
+          <Text style={[styles.unitSubtitle, styles.disabledText]}>
+            Understanding medical and rescue tools
+          </Text>
+          {/* Disabled Learning Path Items */}
+          {[
+            {
+              icon: "tool",
+              title: "First Aid Kit",
+              description: "Components and usage",
+            },
+            {
+              icon: "umbrella",
+              title: "Safety Equipment",
+              description: "Protective gear essentials",
+            },
+            {
+              icon: "navigation",
+              title: "Navigation Tools",
+              description: "Rescue and orientation",
+            },
+            {
+              icon: "anchor",
+              title: "Emergency Devices",
+              description: "Communication and signaling",
+            },
+          ].map((item, index) => (
+            <View
+              key={index}
+              style={[styles.pathItem, styles.disabledPathItem]}
+            >
+              <Feather name={item.icon as any} size={24} color="#9E9E9E" />
+              <View style={styles.pathTextContainer}>
+                <Text style={[styles.pathTitle, styles.disabledText]}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.pathSubtitle, styles.disabledSubtitle]}>
+                  {item.description}
+                </Text>
+              </View>
+              <MaterialIcons name="lock" size={24} color="#9E9E9E" />
+            </View>
+          ))}
+          {/* Disabled Start Button */}
+          <View style={[styles.startButton, styles.disabledStartButton]}>
+            <Text style={[styles.startButtonText, styles.disabledText]}>
+              LOCKED
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -92,6 +231,12 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 16,
   },
+  disabledUnitCard: {
+    backgroundColor: "#F5F5F5",
+  },
+  heavilyDisabledUnitCard: {
+    backgroundColor: "#FAFAFA",
+  },
   unitTitle: {
     fontSize: 24,
     fontWeight: "bold",
@@ -110,6 +255,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#eeeeee",
   },
+  disabledPathItem: {
+    borderBottomColor: "#E0E0E0",
+  },
+  heavilyDisabledPathItem: {
+    borderBottomColor: "#F5F5F5",
+  },
   pathTextContainer: {
     flex: 1,
     marginLeft: 16,
@@ -123,6 +274,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#9e9e9e",
   },
+  disabledSubtitle: {
+    color: "#BDBDBD",
+  },
+  heavilyDisabledSubtitle: {
+    color: "#E0E0E0",
+  },
+  disabledText: {
+    color: "#9E9E9E",
+  },
+  heavilyDisabledText: {
+    color: "#BDBDBD",
+  },
   startButton: {
     backgroundColor: "#4CAF50",
     borderRadius: 25,
@@ -132,8 +295,20 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     color: "white",
-    fontWeight: "bold",
     fontSize: 16,
+    fontWeight: "bold",
+    letterSpacing: 1,
+  },
+  disabledStartButton: {
+    backgroundColor: "#E0E0E0",
+  },
+  heavilyDisabledStartButton: {
+    backgroundColor: "#F5F5F5",
+  },
+  lockIconContainer: {
+    position: "absolute",
+    top: 20,
+    right: 20,
   },
   bottomContainer: {
     padding: 16,

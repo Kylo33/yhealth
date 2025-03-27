@@ -10,7 +10,7 @@ export default function AppLayout() {
   }
 
   return (
-    <Tabs>
+    <Tabs screenOptions={{ lazy: false }}>
       <Tabs.Screen
         name="index"
         options={{
