@@ -2,6 +2,7 @@ import { app } from "@/firebase";
 import Feather from "@expo/vector-icons/Feather";
 import { Redirect, Tabs } from "expo-router";
 import { getAuth } from "firebase/auth";
+import React from "react";
 
 export default function AppLayout() {
   if (!getAuth(app).currentUser) {
