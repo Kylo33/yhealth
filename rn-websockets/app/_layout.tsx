@@ -4,10 +4,14 @@ import { View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User, UserContext } from "@/context/UserContext";
 import { CurrentUserContext } from "@/context/CurrentUserContext";
+import Modal from "@/components/Modal";
+import Disclaimer from "@/components/Disclaimer";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function RootLayout() {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<string | undefined>(undefined);
+  const [disclaimerVisible, setDisclaimerVisible] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchAsyncData = async () => {
@@ -32,30 +36,36 @@ export default function RootLayout() {
   }, [users, currentUser]);
 
   return (
-    <CurrentUserContext.Provider value={{ currentUser, setCurrentUser }}>
-      <UserContext.Provider value={{ users, setUsers }}>
-        <View style={{ flex: 1, backgroundColor: "#1e2021" }}>
-          <Stack
-            screenOptions={{
-              navigationBarColor: "#1e2021",
-              statusBarBackgroundColor: "#1e2021",
-              headerStyle: {
-                backgroundColor: "#1e2021",
-              },
-              headerTitleStyle: {
-                color: "#fff",
-              },
-              headerTintColor: "#fff",
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="game"
-              options={{ title: "CPR Practice Game" }}
-            />
-          </Stack>
-        </View>
-      </UserContext.Provider>
-    </CurrentUserContext.Provider>
+    <GestureHandlerRootView>
+      <CurrentUserContext.Provider value={{ currentUser, setCurrentUser }}>
+        <UserContext.Provider value={{ users, setUsers }}>
+          <View style={{ flex: 1, backgroundColor: "#1e2021" }}>
+            <Stack
+              screenOptions={{
+                navigationBarColor: "#1e2021",
+                statusBarBackgroundColor: "#1e2021",
+                headerStyle: {
+                  backgroundColor: "#1e2021",
+                },
+                headerTitleStyle: {
+                  color: "#fff",
+                },
+                headerTintColor: "#fff",
+              }}
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="game"
+                options={{ title: "CPR Practice Game" }}
+              />
+            </Stack>
+          </View>
+          <Disclaimer
+            visible={disclaimerVisible}
+            onAccept={() => setDisclaimerVisible(false)}
+          />
+        </UserContext.Provider>
+      </CurrentUserContext.Provider>
+    </GestureHandlerRootView>
   );
 }
