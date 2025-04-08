@@ -1,5 +1,5 @@
 import Modal from "@/components/Modal";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import {
   Dimensions,
   Pressable,
@@ -17,6 +17,9 @@ import Groq from "groq-sdk";
 import { Stack } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
 import { Audio } from "expo-av";
+import ChoiceBox from "@/components/ChoiceBox";
+import { UserContext } from "@/context/UserContext";
+import { CurrentUserContext } from "@/context/CurrentUserContext";
 
 const SERVER_IP = "ws://192.168.36.32:8000/";
 const MAX_DISTANCE = 100;
@@ -26,23 +29,17 @@ type DataPoint = {
 };
 
 export default function CPRPracticeGame() {
-  const [dataPoints, setDataPoints] = useState<DataPoint[]>([
-    { date: new Date(), depth: 100 },
-    { date: new Date(), depth: 95 },
-    { date: new Date(), depth: 45 },
-    { date: new Date(), depth: 80 },
-    { date: new Date(), depth: 100 },
-    { date: new Date(), depth: 50 },
-    { date: new Date(), depth: 45 },
-    { date: new Date(), depth: 80 },
-    { date: new Date(), depth: 100 },
-    { date: new Date(), depth: 50 },
-    { date: new Date(), depth: 45 },
-    { date: new Date(), depth: 80 },
-    { date: new Date(), depth: 100 },
-    { date: new Date(), depth: 50 },
-  ]);
+  const { users } = useContext(UserContext);
+  const { currentUser } = useContext(CurrentUserContext);
+  
+  const [dataPoints, setDataPoints] = useState<DataPoint[]>(() =>
+    Array.from({ length: 100 }, () => ({
+      date: new Date(),
+      depth: 0,
+    }))
+  );
   const [modalVisible, setModalVisible] = useState<boolean>(true);
+  const [endModalVisible, setEndModalVisible] = useState<boolean>(false);
   const [websocket, setWebsocket] = useState<WebSocket>();
   const [time, setTime] = useState<number>(60);
   const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
@@ -50,18 +47,28 @@ export default function CPRPracticeGame() {
   const bird = useRef<BirdHandle>(null);
 
   useEffect(() => {
-    setWebsocket(new WebSocket(SERVER_IP));
+    const ws = new WebSocket(SERVER_IP);
+    setWebsocket(ws);
+    return () => {
+      ws.close();
+    };
   }, []);
 
   useEffect(() => {
-    const updateData = (event: MessageEvent) => {
-      const depth = +event.data > 100 ? 100 : +event.data;
-      setDataPoints([...dataPoints, { depth, date: new Date() }]);
+    if (!websocket) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      const depth = Math.min(100, Number(event.data));
+      setDataPoints(prev => {
+        // Keep only last 100 points to prevent memory issues
+        const newPoints = [...prev, { depth, date: new Date() }];
+        return newPoints.slice(-100);
+      });
     };
 
-    websocket?.addEventListener("message", updateData);
-    return () => websocket?.removeEventListener("message", updateData);
-  }, [websocket, dataPoints]);
+    websocket.addEventListener("message", handleMessage);
+    return () => websocket.removeEventListener("message", handleMessage);
+  }, [websocket])
 
   useEffect(() => {
     if (!modalVisible) {
@@ -101,11 +108,17 @@ export default function CPRPracticeGame() {
         setTime(time - 1);
       }, 1000);
       return () => clearTimeout(timeout);
+    } else {
+      setEndModalVisible(true);
     }
   }, [time]);
 
   const dismissModal = () => {
     setModalVisible(false);
+  };
+
+  const dismissEndModal = () => {
+    setEndModalVisible(false);
   };
 
   useEffect(() => {
@@ -175,6 +188,15 @@ export default function CPRPracticeGame() {
             }
             text="Send"
           />
+          <ChoiceBox
+            placeholder="Select an Opponent"
+            items={users
+              .filter(user => user.name !== currentUser)
+              .map(user => ({
+                label: user.name,
+                value: user.name
+              }))}
+          />
         </ScrollView>
         <Modal
           visible={modalVisible}
@@ -190,6 +212,33 @@ export default function CPRPracticeGame() {
             <ModalText>
               When you are ready, press begin. You will have 60 seconds, and you
               will be scored based on the accuracy of your CPR.
+            </ModalText>
+            <ModalText>
+              Choose an opponent below:
+            </ModalText>
+            <ChoiceBox
+              placeholder="Select an Opponent"
+              items={users
+                .filter(user => user.name !== currentUser)
+                .map(user => ({
+                  label: user.name,
+                  value: user.name
+                }))}
+            />
+          </View>
+        </Modal>
+        <Modal
+          visible={endModalVisible}
+          title="Time's Up!"
+          onSubmit={dismissEndModal}
+          buttonText="Begin"
+        >
+          <View style={styles.modalTextContainer}>
+            <ModalText>
+              Please hand the phone to the other player.
+            </ModalText>
+            <ModalText>
+              When you are ready, press begin to start your turn.
             </ModalText>
           </View>
         </Modal>
