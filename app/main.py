@@ -14,7 +14,7 @@ async def connect(websocket):
         clients.remove(websocket)
 
 
-PORT = "/dev/ttyACM1"
+PORT = "/dev/ttyACM0"
 
 
 async def listen_for_serial():

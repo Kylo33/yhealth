@@ -54,6 +54,7 @@ export default function RootLayout() {
               }}
             >
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="lessons" options={{ headerShown: false }} />
               <Stack.Screen
                 name="game"
                 options={{ title: "CPR Practice Game" }}

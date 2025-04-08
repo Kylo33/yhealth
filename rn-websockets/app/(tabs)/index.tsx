@@ -11,7 +11,7 @@ export default function HomeScreen() {
         <UnitCard title="Unit 1: CPR">
           <LessonCard
             title="Introduction"
-            href="/leaderboard"
+            href="/lessons/cpr-intro"
             description="Introduction to CPR"
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="heart" />
@@ -19,9 +19,9 @@ export default function HomeScreen() {
             color="#ef8228"
           />
           <LessonCard
-            title="CPR Types"
-            href="/leaderboard"
-            description="Various types of CPR"
+            title="CPR Guide"
+            href="/lessons/cpr-guide"
+            description="How to perform CPR"
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="activity" />
             )}
@@ -29,7 +29,7 @@ export default function HomeScreen() {
           />
           <LessonCard
             title="Preparation"
-            href="/leaderboard"
+            href="/lessons/game-prep"
             description="Learn to play CPR Game"
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="mouse-pointer" />
