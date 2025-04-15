@@ -26,7 +26,6 @@ const MAX_DISTANCE = 100;
 type DataPoint = {
   depth: number;
   date: Date;
-  frequency: number;
 };
 
 export default function CPRPracticeGame() {
@@ -37,7 +36,6 @@ export default function CPRPracticeGame() {
     Array.from({ length: 100 }, () => ({
       date: new Date(),
       depth: 0,
-      frequency: 0,
     }))
   );
   const [modalVisible, setModalVisible] = useState<boolean>(true);
@@ -47,11 +45,7 @@ export default function CPRPracticeGame() {
   const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
   const [sound, setSound] = useState<Audio.Sound | undefined>(undefined);
   const bird = useRef<BirdHandle>(null);
-  const [peakCount, setPeakCount] = useState<number>(0);
-
-  function is_peak(depth: number): boolean {
-    return true;
-  }
+  const [frequencyData, setFrequencyData] = useState<number[]>([]);
 
   useEffect(() => {
     const ws = new WebSocket(SERVER_IP);
@@ -66,13 +60,10 @@ export default function CPRPracticeGame() {
 
     const handleMessage = (event: MessageEvent) => {
       const depth = Math.min(100, Number(event.data));
-      let isPeak = is_peak(depth);
-      if (isPeak) {
-        setPeakCount(peakCount + 1);
-      }
       setDataPoints((prev) => {
         // Keep only last 100 points to prevent memory issues
-        const frequency = time != 60 ? (isPeak ? peakCount + 1 : peakCount) / (60 - time) : 0;
+        const frequency =
+          time != 60 ? (isPeak ? peakCount + 1 : peakCount) / (60 - time) : 0;
         const newPoints = [...prev, { depth, date: new Date(), frequency }];
         return newPoints.slice(-100);
       });
@@ -111,6 +102,10 @@ export default function CPRPracticeGame() {
     }
   };
 
+  function countCompressions(): number {
+    return 5; // replace this with code to measure the frequency from the depth data.
+  }
+
   useEffect(() => {
     if (time > 0) {
       if (time == 40 || time == 20) {
@@ -119,6 +114,7 @@ export default function CPRPracticeGame() {
       if (!modalVisible && !endModalVisible) {
         const timeout = setTimeout(() => {
           setTime(time - 1);
+          setFrequencyData([...frequencyData, countCompressions() / (60 - time + 1)])
         }, 1000);
         return () => clearTimeout(timeout);
       }
@@ -180,7 +176,9 @@ export default function CPRPracticeGame() {
             </View>
             <View style={styles.divider} />
             <View style={styles.stat}>
-              <Text style={styles.number}>{dataPoints[dataPoints.length - 1].frequency}</Text>
+              <Text style={styles.number}>
+                {dataPoints[dataPoints.length - 1].frequency}
+              </Text>
               <Text style={styles.statLabel}>Frequency</Text>
             </View>
           </View>
