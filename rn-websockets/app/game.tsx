@@ -72,7 +72,7 @@ export default function CPRPracticeGame() {
       }
       setDataPoints((prev) => {
         // Keep only last 100 points to prevent memory issues
-        const frequency = isPeak ? peakCount + 1 : peakCount;
+        const frequency = time != 60 ? (isPeak ? peakCount + 1 : peakCount) / (60 - time) : 0;
         const newPoints = [...prev, { depth, date: new Date(), frequency }];
         return newPoints.slice(-100);
       });
@@ -180,7 +180,7 @@ export default function CPRPracticeGame() {
             </View>
             <View style={styles.divider} />
             <View style={styles.stat}>
-              <Text style={styles.number}>{peakCount / time}</Text>
+              <Text style={styles.number}>{dataPoints[dataPoints.length - 1].frequency}</Text>
               <Text style={styles.statLabel}>Frequency</Text>
             </View>
           </View>
