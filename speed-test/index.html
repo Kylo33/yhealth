@@ -1,0 +1,9 @@
+<p>Count: <span></span></p>
+<script>
+let i = 0;
+const ws = new WebSocket("ws://192.168.36.32:8000/ws");
+console.log(ws)
+ws.onmessage = () => {
+    document.querySelector("span").textContent = ++i;
+}
+</script>

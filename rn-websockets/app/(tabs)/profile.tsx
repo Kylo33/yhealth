@@ -77,6 +77,7 @@ export default function ProfileScreen() {
                 { value: 30 },
               ]}
             />
+            
           </ScrollView>
         )}
       </View>

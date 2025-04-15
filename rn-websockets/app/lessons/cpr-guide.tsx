@@ -12,7 +12,7 @@ export default function CPRTypes() {
       <ScrollView key="1" style={styles.page}>
         <Page
           title="First Steps"
-          text="When you suspect a suddent cardiac arrest, you should first check if the person is breathing, and whether they are conscious. If they are not breathing, immediately call 911 (on speaker), and, if they are conscious, ask for their consent to perform CPR (if not, you have consent by implied consent). If someone is nearby, tell them to find an AED, and immediately begin CPR."
+          text="When you suspect a sudden cardiac arrest, you should first check if the person is breathing, and whether they are conscious. If they are not breathing, immediately call 911 (on speaker), and, if they are conscious, ask for their consent to perform CPR (if not, you have consent by implied consent). If someone is nearby, tell them to find an AED, and immediately begin CPR."
           imageSource={require("@/assets/images/phone.svg")}
         />
       </ScrollView>

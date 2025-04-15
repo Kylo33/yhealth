@@ -22,7 +22,7 @@ const Bird = forwardRef<BirdHandle, Props>((props, ref) => {
         animation.current?.play();
       }, 0);
       setMessage(message);
-      setTimeout(() => setMessage(undefined), 3000);
+      setTimeout(() => setMessage(undefined), 5000);
     },
   }));
 

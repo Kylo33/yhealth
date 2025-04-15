@@ -26,16 +26,18 @@ const MAX_DISTANCE = 100;
 type DataPoint = {
   depth: number;
   date: Date;
+  frequency: number;
 };
 
 export default function CPRPracticeGame() {
   const { users } = useContext(UserContext);
   const { currentUser } = useContext(CurrentUserContext);
-  
+
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() =>
     Array.from({ length: 100 }, () => ({
       date: new Date(),
       depth: 0,
+      frequency: 0,
     }))
   );
   const [modalVisible, setModalVisible] = useState<boolean>(true);
@@ -45,6 +47,11 @@ export default function CPRPracticeGame() {
   const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
   const [sound, setSound] = useState<Audio.Sound | undefined>(undefined);
   const bird = useRef<BirdHandle>(null);
+  const [peakCount, setPeakCount] = useState<number>(0);
+
+  function is_peak(depth: number): boolean {
+    return true;
+  }
 
   useEffect(() => {
     const ws = new WebSocket(SERVER_IP);
@@ -59,16 +66,21 @@ export default function CPRPracticeGame() {
 
     const handleMessage = (event: MessageEvent) => {
       const depth = Math.min(100, Number(event.data));
-      setDataPoints(prev => {
+      let isPeak = is_peak(depth);
+      if (isPeak) {
+        setPeakCount(peakCount + 1);
+      }
+      setDataPoints((prev) => {
         // Keep only last 100 points to prevent memory issues
-        const newPoints = [...prev, { depth, date: new Date() }];
+        const frequency = isPeak ? peakCount + 1 : peakCount;
+        const newPoints = [...prev, { depth, date: new Date(), frequency }];
         return newPoints.slice(-100);
       });
     };
 
     websocket.addEventListener("message", handleMessage);
     return () => websocket.removeEventListener("message", handleMessage);
-  }, [websocket])
+  }, [websocket]);
 
   useEffect(() => {
     if (!modalVisible) {
@@ -101,17 +113,19 @@ export default function CPRPracticeGame() {
 
   useEffect(() => {
     if (time > 0) {
-      if (time % 10 == 0 && Math.floor(Math.random() * 4) == 0) {
+      if (time == 40 || time == 20) {
         giveAdvice();
       }
-      const timeout = setTimeout(() => {
-        setTime(time - 1);
-      }, 1000);
-      return () => clearTimeout(timeout);
+      if (!modalVisible && !endModalVisible) {
+        const timeout = setTimeout(() => {
+          setTime(time - 1);
+        }, 1000);
+        return () => clearTimeout(timeout);
+      }
     } else {
       setEndModalVisible(true);
     }
-  }, [time]);
+  }, [time, modalVisible]);
 
   const dismissModal = () => {
     setModalVisible(false);
@@ -166,8 +180,8 @@ export default function CPRPracticeGame() {
             </View>
             <View style={styles.divider} />
             <View style={styles.stat}>
-              <Text style={styles.number}>10</Text>
-              <Text style={styles.statLabel}>Seconds</Text>
+              <Text style={styles.number}>{peakCount / time}</Text>
+              <Text style={styles.statLabel}>Frequency</Text>
             </View>
           </View>
           <ChartCard
@@ -179,23 +193,6 @@ export default function CPRPracticeGame() {
           <ChartCard
             data={dataPoints.map((point) => ({ value: point.depth }))}
             title="Compression Depth"
-          />
-          <Button
-            onPress={() =>
-              bird.current?.send(
-                "Your compressions are too shallow, aim for a depth of at least 2 inches in the center of the chest."
-              )
-            }
-            text="Send"
-          />
-          <ChoiceBox
-            placeholder="Select an Opponent"
-            items={users
-              .filter(user => user.name !== currentUser)
-              .map(user => ({
-                label: user.name,
-                value: user.name
-              }))}
           />
         </ScrollView>
         <Modal
@@ -213,16 +210,14 @@ export default function CPRPracticeGame() {
               When you are ready, press begin. You will have 60 seconds, and you
               will be scored based on the accuracy of your CPR.
             </ModalText>
-            <ModalText>
-              Choose an opponent below:
-            </ModalText>
+            <ModalText>Choose an opponent below:</ModalText>
             <ChoiceBox
               placeholder="Select an Opponent"
               items={users
-                .filter(user => user.name !== currentUser)
-                .map(user => ({
+                .filter((user) => user.name !== currentUser)
+                .map((user) => ({
                   label: user.name,
-                  value: user.name
+                  value: user.name,
                 }))}
             />
           </View>
@@ -234,9 +229,7 @@ export default function CPRPracticeGame() {
           buttonText="Begin"
         >
           <View style={styles.modalTextContainer}>
-            <ModalText>
-              Please hand the phone to the other player.
-            </ModalText>
+            <ModalText>Please hand your device to your opponent.</ModalText>
             <ModalText>
               When you are ready, press begin to start your turn.
             </ModalText>

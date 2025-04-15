@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   disclaimerText: {
-    color: "#85858588",
+    color: "#858585",
     fontSize: 18,
     lineHeight: 18 * 1.25,
   },
