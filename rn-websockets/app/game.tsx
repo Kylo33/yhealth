@@ -45,7 +45,7 @@ export default function CPRPracticeGame() {
   const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
   const [sound, setSound] = useState<Audio.Sound | undefined>(undefined);
   const bird = useRef<BirdHandle>(null);
-  const [frequencyData, setFrequencyData] = useState<number[]>([]);
+  const [frequencyData, setFrequencyData] = useState<number[]>([0]);
 
   useEffect(() => {
     const ws = new WebSocket(SERVER_IP);
@@ -62,9 +62,7 @@ export default function CPRPracticeGame() {
       const depth = Math.min(100, Number(event.data));
       setDataPoints((prev) => {
         // Keep only last 100 points to prevent memory issues
-        const frequency =
-          time != 60 ? (isPeak ? peakCount + 1 : peakCount) / (60 - time) : 0;
-        const newPoints = [...prev, { depth, date: new Date(), frequency }];
+        const newPoints = [...prev, { depth, date: new Date() }];
         return newPoints.slice(-100);
       });
     };
@@ -114,7 +112,10 @@ export default function CPRPracticeGame() {
       if (!modalVisible && !endModalVisible) {
         const timeout = setTimeout(() => {
           setTime(time - 1);
-          setFrequencyData([...frequencyData, countCompressions() / (60 - time + 1)])
+          setFrequencyData([
+            ...frequencyData,
+            countCompressions() / (dataPoints.length * 0.2),
+          ]);
         }, 1000);
         return () => clearTimeout(timeout);
       }
@@ -177,7 +178,7 @@ export default function CPRPracticeGame() {
             <View style={styles.divider} />
             <View style={styles.stat}>
               <Text style={styles.number}>
-                {dataPoints[dataPoints.length - 1].frequency}
+                {frequencyData[frequencyData.length - 1]}
               </Text>
               <Text style={styles.statLabel}>Frequency</Text>
             </View>
