@@ -22,12 +22,12 @@ const Bird = forwardRef<BirdHandle, Props>((props, ref) => {
         animation.current?.play();
       }, 0);
       setMessage(message);
-      setTimeout(() => setMessage(undefined), 5000);
+      setTimeout(() => setMessage(undefined), 10000);
     },
   }));
 
   return (
-    <>
+    <View style={styles.overlay}>
       {message && (
         <>
           <Animated.View
@@ -51,13 +51,22 @@ const Bird = forwardRef<BirdHandle, Props>((props, ref) => {
           </Animated.View>
         </>
       )}
-    </>
+    </View>
   );
 });
 
 export default Bird;
 
 const styles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none',
+    zIndex: 1000,
+  },
   birdContainer: {
     position: "absolute",
     right: -80,

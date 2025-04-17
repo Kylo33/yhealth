@@ -1,5 +1,5 @@
-import { ComponentProps } from "react";
-import { View, StyleSheet, Platform, Text } from "react-native";
+import { ComponentProps, useRef } from "react";
+import { View, StyleSheet, Platform, Text, Pressable } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 type Props = {
@@ -17,11 +17,21 @@ export default function ChoiceBox({
   items,
   onValueChange,
 }: Props) {
+  const pickerRef = useRef<Picker<string>>(null);
+
   return (
     <View>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.container}>
+      <Pressable 
+        style={styles.container}
+        onPress={() => {
+          if (Platform.OS === 'android') {
+            pickerRef.current?.focus();
+          }
+        }}
+      >
         <Picker
+          ref={pickerRef}
           selectedValue={value}
           onValueChange={onValueChange}
           style={styles.picker}
@@ -29,6 +39,7 @@ export default function ChoiceBox({
           mode="dropdown"
           dropdownIconRippleColor="#343637"
           itemStyle={styles.itemStyle}
+          prompt={placeholder}
         >
           {placeholder && (
             <Picker.Item
@@ -48,7 +59,7 @@ export default function ChoiceBox({
             />
           ))}
         </Picker>
-      </View>
+      </Pressable>
     </View>
   );
 }

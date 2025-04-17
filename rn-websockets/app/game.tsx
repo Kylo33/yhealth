@@ -83,7 +83,7 @@ export default function CPRPracticeGame() {
       messages: [
         {
           role: "user",
-          content: `The following are the user's 30 most recent compression depths. Each data point is spaced 200ms apart: [${dataPoints
+          content: `The following are the user's 30 most recent compression depths. Each data point is spaced 200ms apart: [${[...dataPoints]
             .reverse()
             .slice(0, 30)
             .map((data) => data.depth)
@@ -130,6 +130,7 @@ export default function CPRPracticeGame() {
 
   const dismissEndModal = () => {
     setEndModalVisible(false);
+    setTime(60);
   };
 
   useEffect(() => {
