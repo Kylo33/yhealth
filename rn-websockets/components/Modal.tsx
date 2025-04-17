@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
   fill: {
     position: "absolute",
     inset: 0,
+    zIndex: 1000,
   },
   page: {
     position: "absolute",
@@ -54,13 +55,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
-    zIndex: 100,
+    zIndex: 1000,
   },
   container: {
     backgroundColor: "#2e2f30",
     borderRadius: 16,
     padding: 16,
     gap: 16,
+    zIndex: 1001,
   },
   divider: {
     backgroundColor: "#85858588",

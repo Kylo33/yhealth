@@ -31,6 +31,10 @@ type DataPoint = {
 export default function CPRPracticeGame() {
   const { users } = useContext(UserContext);
   const { currentUser } = useContext(CurrentUserContext);
+  const [selectedOpponent, setSelectedOpponent] = useState<string>("");
+  const [players, setPlayers] = useState<{name: string, score: number}[]>([]);
+  const [showResults, setShowResults] = useState<boolean>(false);
+  const [currentPlayer, setCurrentPlayer] = useState<string>("");
 
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() =>
     Array.from({ length: 100 }, () => ({
@@ -39,13 +43,17 @@ export default function CPRPracticeGame() {
     }))
   );
   const [modalVisible, setModalVisible] = useState<boolean>(true);
-  const [endModalVisible, setEndModalVisible] = useState<boolean>(false);
   const [websocket, setWebsocket] = useState<WebSocket>();
-  const [time, setTime] = useState<number>(60);
+  const [time, setTime] = useState<number>(30);
   const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
   const [sound, setSound] = useState<Audio.Sound | undefined>(undefined);
   const bird = useRef<BirdHandle>(null);
   const [frequencyData, setFrequencyData] = useState<number[]>([0]);
+  const [points, setPoints] = useState<number>(0);
+  const OPTIMAL_DEPTH_MM = 50.8; // 2 inches in mm
+  const OPTIMAL_FREQUENCY_MIN = 100;
+  const OPTIMAL_FREQUENCY_MAX = 120;
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
 
   useEffect(() => {
     const ws = new WebSocket(SERVER_IP);
@@ -73,7 +81,7 @@ export default function CPRPracticeGame() {
 
   useEffect(() => {
     if (!modalVisible) {
-      setTime(60);
+      setTime(30);
     }
   }, [modalVisible]);
 
@@ -103,7 +111,7 @@ export default function CPRPracticeGame() {
   };
 
   function countCompressions(): number {
-    const threshold = 30;
+    const threshold = 15;
     let inCompression = false;
     let count = 0;
 
@@ -122,33 +130,110 @@ export default function CPRPracticeGame() {
     return count;
   }
 
+  function calculatePoints(depth: number, frequency: number): number {
+    // Depth scoring (0-50 points)
+    const depthDiff = Math.abs(depth - OPTIMAL_DEPTH_MM);
+    const depthPoints = Math.max(0, 50 - (depthDiff * 2)); // Lose 2 points per mm deviation
+
+    // Frequency scoring (0-50 points)
+    let frequencyPoints = 0;
+    if (frequency >= OPTIMAL_FREQUENCY_MIN && frequency <= OPTIMAL_FREQUENCY_MAX) {
+      frequencyPoints = 50; // Perfect frequency
+    } else if (frequency < OPTIMAL_FREQUENCY_MIN) {
+      frequencyPoints = Math.max(0, 50 - (OPTIMAL_FREQUENCY_MIN - frequency) * 5); // Lose 5 points per compression below min
+    } else {
+      frequencyPoints = Math.max(0, 50 - (frequency - OPTIMAL_FREQUENCY_MAX) * 5); // Lose 5 points per compression above max
+    }
+
+    return Math.round(depthPoints + frequencyPoints);
+  }
+
   useEffect(() => {
     if (time > 0) {
       if (time == 40 || time == 20) {
         giveAdvice();
       }
-      if (!modalVisible && !endModalVisible) {
+      if (!modalVisible && !showResults) {
         const timeout = setTimeout(() => {
           setTime(time - 1);
-          setFrequencyData([
-            ...frequencyData,
-            (countCompressions() * 60) / (dataPoints.length * 0.2),
-          ]);
+          const currentFrequency = (countCompressions() * 60) / (dataPoints.length * 0.2);
+          setFrequencyData([...frequencyData, currentFrequency]);
+          
+          // Calculate points based on current performance
+          const currentDepth = dataPoints[dataPoints.length - 1]?.depth || 0;
+          const newPoints = calculatePoints(currentDepth, currentFrequency);
+          setPoints(prevPoints => prevPoints + newPoints);
         }, 1000);
         return () => clearTimeout(timeout);
       }
     } else {
-      setEndModalVisible(true);
+      handleRoundEnd();
     }
   }, [time, modalVisible]);
 
+  const handleRoundEnd = () => {
+    if (players.length === 2) {
+      // Update the current player's score
+      const updatedPlayers = players.map(player => 
+        player.name === currentPlayer ? { ...player, score: points } : player
+      );
+      setPlayers(updatedPlayers);
+      
+      if (currentPlayerIndex === 0) {
+        // First player finished, prepare for second player
+        setCurrentPlayerIndex(1);
+        setCurrentPlayer(selectedOpponent);
+        setModalVisible(true); // Show phone swap modal
+      } else {
+        // Second player finished, show results
+        setShowResults(true);
+        setModalVisible(false);
+      }
+      
+      // Reset game state
+      setTime(30);
+      setDataPoints(Array.from({ length: 100 }, () => ({
+        date: new Date(),
+        depth: 0,
+      })));
+      setPoints(0);
+      setFrequencyData([0]);
+    }
+  };
+
   const dismissModal = () => {
+    if (currentPlayerIndex === 0) {
+      if (!selectedOpponent || !currentUser) {
+        return;
+      }
+      // Initialize players array for first player
+      setPlayers([
+        { name: currentUser, score: 0 },
+        { name: selectedOpponent, score: 0 }
+      ]);
+      setCurrentPlayer(currentUser);
+    }
+    
     setModalVisible(false);
   };
 
-  const dismissEndModal = () => {
-    setEndModalVisible(false);
-    setTime(60);
+  const startNextRound = () => {
+    setShowResults(false);
+    setTime(30);
+    setDataPoints(Array.from({ length: 100 }, () => ({
+      date: new Date(),
+      depth: 0,
+    })));
+    setPoints(0);
+    setFrequencyData([0]);
+    setPlayers([]);
+    setCurrentPlayerIndex(0);
+    setModalVisible(true);
+  };
+
+  const getWinner = () => {
+    if (players.length !== 2) return null;
+    return players[0].score > players[1].score ? players[0] : players[1];
   };
 
   useEffect(() => {
@@ -186,7 +271,7 @@ export default function CPRPracticeGame() {
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.statsCard}>
             <View style={styles.stat}>
-              <Text style={styles.number}>82</Text>
+              <Text style={styles.number}>{points}</Text>
               <Text style={styles.statLabel}>Points</Text>
             </View>
             <View style={styles.divider} />
@@ -209,50 +294,74 @@ export default function CPRPracticeGame() {
             title="Compression Depth"
           />
           <ChartCard
-            data={dataPoints.map((point) => ({ value: point.depth }))}
-            title="Compression Depth"
+            data={frequencyData.map((value) => ({ value }))}
+            title="Compression Frequency (per minute)"
           />
         </ScrollView>
         <Modal
           visible={modalVisible}
-          title="CPR Practice Game"
+          title={currentPlayerIndex === 0 ? "CPR Practice Game" : "Swap Phones"}
           onSubmit={dismissModal}
-          buttonText="Begin"
+          buttonText={currentPlayerIndex === 0 ? "Begin" : "Continue"}
         >
           <View style={styles.modalTextContainer}>
-            <ModalText>
-              Welcome! Now that you have gone through the training material, you
-              are ready to practice CPR with your simulation device.
-            </ModalText>
-            <ModalText>
-              When you are ready, press begin. You will have 60 seconds, and you
-              will be scored based on the accuracy of your CPR.
-            </ModalText>
-            <ModalText>Choose an opponent below:</ModalText>
-            <ChoiceBox
-              placeholder="Select an Opponent"
-              items={users
-                .filter((user) => user.name !== currentUser)
-                .map((user) => ({
-                  label: user.name,
-                  value: user.name,
-                }))}
-            />
+            {currentPlayerIndex === 0 ? (
+              <>
+                <ModalText>
+                  Welcome! Now that you have gone through the training material, you
+                  are ready to practice CPR with your simulation device.
+                </ModalText>
+                <ModalText>
+                  When you are ready, press begin. You will have 60 seconds, and you
+                  will be scored based on the accuracy of your CPR.
+                </ModalText>
+                <ModalText>Choose an opponent below:</ModalText>
+                <ChoiceBox
+                  placeholder="Select an Opponent"
+                  items={users
+                    .filter((user) => user.name !== currentUser)
+                    .map((user) => ({
+                      label: user.name,
+                      value: user.name,
+                    }))}
+                  onValueChange={(value) => setSelectedOpponent(value)}
+                />
+              </>
+            ) : (
+              <>
+                <ModalText>Please hand your device to your opponent.</ModalText>
+                <ModalText>
+                  When you are ready, press continue to begin the next round.
+                </ModalText>
+              </>
+            )}
           </View>
         </Modal>
         <Modal
-          visible={endModalVisible}
-          title="Time's Up!"
-          onSubmit={dismissEndModal}
-          buttonText="Begin"
-        >
-          <View style={styles.modalTextContainer}>
-            <ModalText>Please hand your device to your opponent.</ModalText>
-            <ModalText>
-              When you are ready, press begin to start your turn.
-            </ModalText>
-          </View>
-        </Modal>
+            visible={showResults}
+            title="Game Results"
+            onSubmit={startNextRound}
+            buttonText="Play Again"
+          >
+            <View style={styles.resultsContainer}>
+              {players.map((player, index) => {
+                const isWinner = getWinner()?.name === player.name;
+                return (
+                  <View key={index} style={[styles.resultRow, isWinner && styles.winnerRow]}>
+                    <View style={styles.resultContent}>
+                      {isWinner && (
+                        <Feather name="award" size={24} color="#ef8228" style={styles.crown} />
+                      )}
+                      <Text style={[styles.resultName, isWinner && styles.winnerName]}>
+                        {player.name}
+                      </Text>
+                    </View>
+                    <Text style={styles.resultScore}>{player.score} points</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </Modal>
         <Bird ref={bird} />
       </View>
     </>
@@ -293,5 +402,42 @@ const styles = StyleSheet.create({
   },
   modalTextContainer: {
     gap: 2,
+  },
+  resultsContainer: {
+    gap: 16,
+    padding: 16,
+  },
+  resultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#313435',
+    padding: 16,
+    borderRadius: 16,
+  },
+  winnerRow: {
+    backgroundColor: '#2e2f30',
+  },
+  resultContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  resultName: {
+    color: '#fff',
+    fontSize: 18,
+    flex: 1,
+  },
+  winnerName: {
+    color: '#ef8228',
+    fontWeight: 'bold',
+  },
+  resultScore: {
+    color: '#85858588',
+    fontSize: 18,
+    marginLeft: 16,
+  },
+  crown: {
+    marginRight: 8,
   },
 });
