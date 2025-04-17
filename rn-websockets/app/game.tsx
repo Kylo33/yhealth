@@ -59,7 +59,7 @@ export default function CPRPracticeGame() {
     if (!websocket) return;
 
     const handleMessage = (event: MessageEvent) => {
-      const depth = Math.min(100, Number(event.data));
+      const depth = MAX_DISTANCE - Math.min(100, Number(event.data));
       setDataPoints((prev) => {
         // Keep only last 100 points to prevent memory issues
         const newPoints = [...prev, { depth, date: new Date() }];
@@ -101,7 +101,23 @@ export default function CPRPracticeGame() {
   };
 
   function countCompressions(): number {
-    return 5; // replace this with code to measure the frequency from the depth data.
+    const threshold = 30;
+    let inCompression = false;
+    let count = 0;
+
+    for (let i = 0; i < dataPoints.length; i++) {
+      const depth = dataPoints[i].depth;
+
+      if (depth < threshold && !inCompression) {
+        inCompression = true;
+      } else if (depth >= threshold && inCompression) {
+        // End of compression
+        count++;
+        inCompression = false;
+      }
+    }
+
+    return count;
   }
 
   useEffect(() => {
@@ -114,7 +130,7 @@ export default function CPRPracticeGame() {
           setTime(time - 1);
           setFrequencyData([
             ...frequencyData,
-            countCompressions() / (dataPoints.length * 0.2),
+            (countCompressions() * 60) / (dataPoints.length * 0.04),
           ]);
         }, 1000);
         return () => clearTimeout(timeout);
@@ -186,7 +202,7 @@ export default function CPRPracticeGame() {
           </View>
           <ChartCard
             data={dataPoints.map((point) => ({
-              value: MAX_DISTANCE - point.depth,
+              value: point.depth,
             }))}
             title="Compression Depth"
           />
