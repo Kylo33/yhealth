@@ -44,7 +44,7 @@ export default function CPRPracticeGame() {
   );
   const [modalVisible, setModalVisible] = useState<boolean>(true);
   const [websocket, setWebsocket] = useState<WebSocket>();
-  const [time, setTime] = useState<number>(30);
+  const [time, setTime] = useState<number>(5);
   const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
   const [sound, setSound] = useState<Audio.Sound | undefined>(undefined);
   const bird = useRef<BirdHandle>(null);
@@ -81,7 +81,7 @@ export default function CPRPracticeGame() {
 
   useEffect(() => {
     if (!modalVisible) {
-      setTime(30);
+      setTime(5);
     }
   }, [modalVisible]);
 
@@ -191,7 +191,7 @@ export default function CPRPracticeGame() {
       }
       
       // Reset game state
-      setTime(30);
+      setTime(5);
       setDataPoints(Array.from({ length: 100 }, () => ({
         date: new Date(),
         depth: 0,
@@ -219,7 +219,7 @@ export default function CPRPracticeGame() {
 
   const startNextRound = () => {
     setShowResults(false);
-    setTime(30);
+    setTime(5);
     setDataPoints(Array.from({ length: 100 }, () => ({
       date: new Date(),
       depth: 0,
@@ -401,32 +401,44 @@ const styles = StyleSheet.create({
     backgroundColor: "#85858588",
   },
   modalTextContainer: {
-    gap: 2,
+    gap: 16,
+    width: '100%',
+    paddingHorizontal: 8,
   },
   resultsContainer: {
     gap: 16,
     padding: 16,
+    width: '100%',
   },
   resultRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     backgroundColor: '#313435',
-    padding: 16,
+    padding: 24,
     borderRadius: 16,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: '100%',
   },
   winnerRow: {
     backgroundColor: '#2e2f30',
+    borderWidth: 2,
+    borderColor: '#ef8228',
   },
   resultContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    width: '100%',
+    marginBottom: 8,
   },
   resultName: {
     color: '#fff',
-    fontSize: 18,
-    flex: 1,
+    fontSize: 24,
+    fontWeight: '500',
   },
   winnerName: {
     color: '#ef8228',
@@ -435,9 +447,9 @@ const styles = StyleSheet.create({
   resultScore: {
     color: '#85858588',
     fontSize: 18,
-    marginLeft: 16,
+    fontWeight: '500',
   },
   crown: {
-    marginRight: 8,
+    marginRight: 16,
   },
 });
