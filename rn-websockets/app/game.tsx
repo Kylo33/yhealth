@@ -83,7 +83,9 @@ export default function CPRPracticeGame() {
       messages: [
         {
           role: "user",
-          content: `The following are the user's 30 most recent compression depths. Each data point is spaced 200ms apart: [${[...dataPoints]
+          content: `The following are the user's 30 most recent compression depths. Each data point is spaced 200ms apart: [${[
+            ...dataPoints,
+          ]
             .reverse()
             .slice(0, 30)
             .map((data) => data.depth)
@@ -130,7 +132,7 @@ export default function CPRPracticeGame() {
           setTime(time - 1);
           setFrequencyData([
             ...frequencyData,
-            (countCompressions() * 60) / (dataPoints.length * 0.04),
+            (countCompressions() * 60) / (dataPoints.length * 0.2),
           ]);
         }, 1000);
         return () => clearTimeout(timeout);
