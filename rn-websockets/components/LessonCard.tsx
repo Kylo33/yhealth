@@ -13,6 +13,7 @@ type Props = {
   description: string;
   icon: (iconParams: IconParameters) => ReactElement;
   color: string;
+  disabled?: boolean;
 };
 
 export default function LessonCard({
@@ -21,19 +22,28 @@ export default function LessonCard({
   href,
   icon,
   color,
+  disabled = false,
 }: Props) {
+  const content = (
+    <View style={[styles.container, { backgroundColor: color, opacity: disabled ? 0.5 : 1 }]}>
+      <View style={styles.iconContainer}>
+        {icon({ color: "#fff", size: 48 })}
+      </View>
+      <View style={styles.divider} />
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.description}>{description}</Text>
+      </View>
+    </View>
+  );
+
+  if (disabled) {
+    return content;
+  }
+
   return (
     <Link href={href}>
-      <View style={[styles.container, { backgroundColor: color }]}>
-        <View style={styles.iconContainer}>
-          {icon({ color: "#fff", size: 48 })}
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{description}</Text>
-        </View>
-      </View>
+      {content}
     </Link>
   );
 }

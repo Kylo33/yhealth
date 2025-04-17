@@ -49,39 +49,43 @@ export default function HomeScreen() {
         <UnitCard title="Unit 2: CPR">
           <LessonCard
             title="Introduction"
-            href="/leaderboard"
-            description="Introduction to CPR"
+            href="/lessons/cpr-intro"
+            description="Coming soon"
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="heart" />
             )}
             color="#343637"
+            disabled={true}
           />
           <LessonCard
             title="CPR Types"
-            href="/leaderboard"
-            description="Various types of CPR"
+            href="/lessons/cpr-guide"
+            description="Coming soon"
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="activity" />
             )}
             color="#343637"
+            disabled={true}
           />
           <LessonCard
             title="Preparation"
-            href="/leaderboard"
-            description="Learn to play CPR Game"
+            href="/lessons/game-prep"
+            description="Coming soon"
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="mouse-pointer" />
             )}
             color="#343637"
+            disabled={true}
           />
           <LessonCard
             title="Game Time"
-            href="/leaderboard"
-            description="Hands-on CPR Practice"
+            href="/game"
+            description="Coming soon"
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="target" />
             )}
             color="#343637"
+            disabled={true}
           />
         </UnitCard>
       </ScrollView>

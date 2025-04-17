@@ -18,7 +18,7 @@ import { Stack } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
 import { Audio } from "expo-av";
 import ChoiceBox from "@/components/ChoiceBox";
-import { UserContext } from "@/context/UserContext";
+import { UserContext, User } from "@/context/UserContext";
 import { CurrentUserContext } from "@/context/CurrentUserContext";
 
 const SERVER_IP = "ws://192.168.36.32:8000/";
@@ -29,7 +29,7 @@ type DataPoint = {
 };
 
 export default function CPRPracticeGame() {
-  const { users } = useContext(UserContext);
+  const { users, setUsers } = useContext(UserContext);
   const { currentUser } = useContext(CurrentUserContext);
   const [selectedOpponent, setSelectedOpponent] = useState<string>("");
   const [players, setPlayers] = useState<{name: string, score: number}[]>([]);
@@ -44,7 +44,7 @@ export default function CPRPracticeGame() {
   );
   const [modalVisible, setModalVisible] = useState<boolean>(true);
   const [websocket, setWebsocket] = useState<WebSocket>();
-  const [time, setTime] = useState<number>(5);
+  const [time, setTime] = useState<number>(60);
   const [musicPlaying, setMusicPlaying] = useState<boolean>(false);
   const [sound, setSound] = useState<Audio.Sound | undefined>(undefined);
   const bird = useRef<BirdHandle>(null);
@@ -81,7 +81,7 @@ export default function CPRPracticeGame() {
 
   useEffect(() => {
     if (!modalVisible) {
-      setTime(5);
+      setTime(60);
     }
   }, [modalVisible]);
 
@@ -179,6 +179,15 @@ export default function CPRPracticeGame() {
       );
       setPlayers(updatedPlayers);
       
+      // Update the leaderboard scores
+      const updatedUsers = users.map((user: User) => {
+        if (user.name === currentPlayer) {
+          return { ...user, score: user.score + points };
+        }
+        return user;
+      });
+      setUsers(updatedUsers);
+      
       if (currentPlayerIndex === 0) {
         // First player finished, prepare for second player
         setCurrentPlayerIndex(1);
@@ -191,7 +200,7 @@ export default function CPRPracticeGame() {
       }
       
       // Reset game state
-      setTime(5);
+      setTime(60);
       setDataPoints(Array.from({ length: 100 }, () => ({
         date: new Date(),
         depth: 0,
@@ -219,7 +228,7 @@ export default function CPRPracticeGame() {
 
   const startNextRound = () => {
     setShowResults(false);
-    setTime(5);
+    setTime(60);
     setDataPoints(Array.from({ length: 100 }, () => ({
       date: new Date(),
       depth: 0,
