@@ -21,7 +21,7 @@ import ChoiceBox from "@/components/ChoiceBox";
 import { UserContext, User } from "@/context/UserContext";
 import { CurrentUserContext } from "@/context/CurrentUserContext";
 
-const SERVER_IP = "ws://192.168.36.32:8000/";
+const SERVER_IP = "ws://192.168.5.32:8000/";
 const MAX_DISTANCE = 100;
 type DataPoint = {
   depth: number;
@@ -67,7 +67,7 @@ export default function CPRPracticeGame() {
     if (!websocket) return;
 
     const handleMessage = (event: MessageEvent) => {
-      const depth = MAX_DISTANCE - Math.min(100, Number(event.data));
+      const depth = Math.max(0, MAX_DISTANCE - Math.min(100, Number(event.data)) - 40);
       setDataPoints((prev) => {
         // Keep only last 100 points to prevent memory issues
         const newPoints = [...prev, { depth, date: new Date() }];
@@ -156,7 +156,7 @@ export default function CPRPracticeGame() {
       if (!modalVisible && !showResults) {
         const timeout = setTimeout(() => {
           setTime(time - 1);
-          const currentFrequency = (countCompressions() * 60) / (dataPoints.length * 0.2);
+          const currentFrequency = Math.round(countCompressions() * 60) / (dataPoints.length * 0.2);
           setFrequencyData([...frequencyData, currentFrequency]);
           
           // Calculate points based on current performance
