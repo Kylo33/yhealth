@@ -25,7 +25,7 @@ export default function HomeScreen() {
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="activity" />
             )}
-            color="#343637"
+            color="#ef8228"
           />
           <LessonCard
             title="Preparation"
@@ -34,7 +34,7 @@ export default function HomeScreen() {
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="mouse-pointer" />
             )}
-            color="#343637"
+            color="#ef8228"
           />
           <LessonCard
             title="Game Time"
@@ -43,7 +43,7 @@ export default function HomeScreen() {
             icon={({ color, size }) => (
               <Feather size={size} color={color} name="target" />
             )}
-            color="#343637"
+            color="#ef8228"
           />
         </UnitCard>
         <UnitCard title="Unit 2: CPR">
