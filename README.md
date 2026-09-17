@@ -20,3 +20,13 @@ To communicate with the Arduino and its sensors, the Arduino outputs the depth o
 
 The largest challenge was sending real-time data from the Arduino to the mobile app fast enough to be able to calculate accurate depth and frequency data from it. Initially, data was sent 5 times per second, which frequently caused the app to crash. By grouping data points in sets of 10, we were able to increase the number of data points to 20 per second, which significantly increased the accuracy of the depth and frequency data for each compression.
 
+## Team Contributions
+
+Renn Gilbert - Architected the React Native application infrastructure and interactive CPR lessons implementing navigation, local data storage, and WebSocket communication with the CPR simulation system.
+
+Jaylene Khourn - Engineered the CPR data collection subsystem using an ultrasonic sensor to capture compression depth, process real-time sensor data, and support accurate calculation and visualization of compression depth and rate within the application.
+
+Matthew Xiong - Designed and constructed the physical CPR simulation device, developing the structural frame and compression mechanism to provide a stable and realistic environment for practicing chest compressions.
+
+Anthony Xu - Developed the gamified CPR training experience, implementing the competitive two-player workflow, performance-based scoring, real-time feedback, and leaderboard functionality.
+
